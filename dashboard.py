@@ -15,12 +15,13 @@ GPIO.setup(LED_PIN, GPIO.OUT)
 
 #Initial LED state
 led_state = False
-
+GPIO.output(LED_PIN, GPIO.LOW)
 
 
 
 @app.route('/')
 def dashboard():
+    GPIO.output(LED_PIN, GPIO.LOW)
     return render_template('index.html')
 
 
