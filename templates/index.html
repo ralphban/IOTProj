@@ -1,76 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IoT Dashboard</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        background-color: #f4f4f4;
-      }
-      .dashboard {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        border: 1px solid #ccc;
-        padding: 50px;
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-      }
-      .switch {
-        margin: 20px;
-      }
-      .switch input {
-        display: none;
-      }
-      .switch label {
-        width: 60px;
-        height: 34px;
-        background-color: #ccc;
-        display: inline-block;
-        border-radius: 34px;
-        position: relative;
-        cursor: pointer;
-      }
-      .switch label::after {
-        content: '';
-        width: 26px;
-        height: 26px;
-        background-color: white;
-        border-radius: 50%;
-        position: absolute;
-        top: 4px;
-        left: 4px;
-        transition: 0.3s;
-      }
-      .switch input:checked + label {
-        background-color: #28a745;
-      }
-      .switch input:checked + label::after {
-        transform: translateX(26px);
-      }
-      #lightbulb {
-        width: 200px;
-        height: 200px;
-        margin-top: 20px;
-      }
-    </style>
+    <link rel="stylesheet" href="../static/styles.css">
   </head>
   <body>
+    <h1>IoT Dashboard</h1>
+
     <div class="dashboard">
-      <h1>IoT Dashboard</h1>
+      <p>Lights</p>
+      
+      <img id="lightbulb" src="../static/lightoff.png" alt="Lightbulb Off" />
+
       <div class="switch">
         <input type="checkbox" id="switchButton" onchange="toggleSwitch()" />
         <label for="switchButton"></label>
       </div>
-      <img id="lightbulb" src="static/lightoff.png" alt="Lightbulb Off" />
+
     </div>
 
     <script>
@@ -82,9 +34,9 @@
       
         // Update lightbulb image based on switch state
         if (switchState) {
-          lightbulb.src = 'static/lighton.png'
+          lightbulb.src = '../static/lighton.png'
         } else {
-          lightbulb.src = 'static/lightoff.png'
+          lightbulb.src = '../static/lightoff.png'
         }
       
         // Send data to the server to control the LED
