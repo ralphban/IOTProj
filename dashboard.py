@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import yagmail
 import RPi.GPIO as GPIO
+import Adafruit_DHT
 
 
 app = Flask(__name__)
@@ -16,6 +17,10 @@ GPIO.setup(LED_PIN, GPIO.OUT)
 led_state = False
 GPIO.output(LED_PIN, GPIO.LOW)
 
+
+# DHT11 sensor setup
+DHT_SENSOR = Adafruit_DHT.DHT11
+DHT_PIN = 4
 
 
 @app.route('/')
@@ -42,6 +47,18 @@ def toggle_led():
         led_state = False #Update led_state to follow that LED is now off
         
     return jsonify({'success': True, 'led_state': led_state}) # keep this line to indicate that the script passed and the led is turned on or off successfully, otherwise return False and include the current LED state in the response
+
+# Data capture route for reading DHT11 sensor
+@app.route('/read-sensor', methods=['GET'])
+def read_sensor():
+    humidity, temperature = Adafruit_DHT.read(DHT_SENSOR, DHT_PIN)
+    if humidity is not None and temperature is not None:
+        # Send email if temperature exceeds 24°C
+        if temperature > 24:
+            send_email(temperature)
+        return jsonify({'temperature': temperature, 'humidity': humidity})
+    else:
+        return jsonify({'error': 'Failed to retrieve data from sensor'}), 500
 
 def send_email(current_temp):
     sender_email = "iotdashboard2024@gmail.com"
