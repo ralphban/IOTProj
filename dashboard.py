@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-
-
+import yagmail
 import RPi.GPIO as GPIO
 
 
@@ -44,7 +43,17 @@ def toggle_led():
         
     return jsonify({'success': True, 'led_state': led_state}) # keep this line to indicate that the script passed and the led is turned on or off successfully, otherwise return False and include the current LED state in the response
 
+def send_email(current_temp):
+    sender_email = "iotdashboard2024@gmail.com"
+    receiver_email = "iotdashboard2024@gmail.com"
+    password = "dyqv qvrd yjzt eusa"
+    yag = yagmail.SMTP(user=sender_email, password=password)
 
+    subject = "Temperature Alert"
+    body = f"The current temperature is {current_temp}. Would you like to turn on the fan?"
+    yag.send(to=receiver_email, subject=subject, contents=body)
+    print("Sent!")
+        
 if __name__ == "__main__":
     app.run()
 
