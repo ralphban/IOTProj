@@ -3,30 +3,64 @@
   <head>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
+
 
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IoT Dashboard</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <style>
+      #temperatureGauge, #humidityGauge {
+          width: 150px;
+          height: 150px;
+          margin: 0 auto;
+      }
+    </style>
   </head>
   <body>
     <h1>IoT Dashboard</h1>
 
-    <div class="dashboard">
-      <p>Lights</p>
-      
-      <img id="lightbulb" src="../static/lightoff.png" alt="Lightbulb Off" />
-
-      <div class="switch">
-        <input type="checkbox" id="switchButton" onchange="toggleSwitch()" />
-        <label for="switchButton"></label>
+    <div class="dashboard-container">
+      <!----------- Light Widget ----------->
+      <div class="dashboard">
+        <p>Lights</p>      
+        <img id="lightbulb" src="../static/lightoff.png" alt="Lightbulb Off" />
+        <div class="switch">
+          <input type="checkbox" id="switchButton" onchange="toggleSwitch()" />
+          <label for="switchButton"></label>
+        </div>
       </div>
 
+      <!----------- Fan Widget -----------> 
+      <div class="dashboard">
+        <p>Fan</p>      
+        <img id="fan" src="../static/fanoff.png" alt="Fan Off" />
+        <div class="switch">
+          <input type="checkbox" id="fanSwitchButton" onchange="toggleFan()" />
+          <label for="fanSwitchButton"></label>
+        </div>
+      </div>
+
+      <!-- Temperature Gauge Widget -->
+      <div class="dashboard">
+        <p>Temperature</p>
+        <div id="temperatureGauge"></div>
+      </div>
+
+      <!-- Humidity Gauge Widget -->
+      <div class="dashboard">
+        <p>Humidity</p>
+        <div id="humidityGauge"></div>
+      </div>
     </div>
+
 
     <script>
       let switchState = false
+      let fanSwitchState = false
       
       function toggleSwitch() {
         switchState = !switchState
@@ -48,6 +82,68 @@
           body: JSON.stringify({ state: switchState })
         })
       }
+
+      function toggleFan() {
+        fanSwitchState = !fanSwitchState;
+        const fanImage = document.getElementById('fan');
+
+        // Update fan image based on switch state
+        if (fanSwitchState) {
+          fanImage.src = '../static/fanon.png';
+        } else {
+          fanImage.src = '../static/fanoff.png';
+        }
+
+        // Send data to the server to control the fan
+        fetch('/toggle-fan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ state: fanSwitchState })
+        });
+      }
+
+      // Initialize JustGage for Temperature and Humidity
+      const temperatureGauge = new JustGage({
+            id: "temperatureGauge",
+            value: 0,
+            min: -10,
+            max: 50,
+            title: "°C",
+            label: "Temperature",
+            gaugeWidthScale: 0.6,
+            levelColors: ["#00bfae", "#f9a825", "#d50000"]
+        });
+
+        const humidityGauge = new JustGage({
+            id: "humidityGauge",
+            value: 0,
+            min: 0,
+            max: 100,
+            title: "%",
+            label: "Humidity",
+            gaugeWidthScale: 0.6,
+            levelColors: ["#2196f3", "#4caf50", "#ff9800"]
+        }); 
+
+        // Function to update the gauge values
+        function updateSensorData() {
+            fetch('/read-sensor')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.temperature && data.humidity) {
+                        temperatureGauge.refresh(data.temperature);
+                        humidityGauge.refresh(data.humidity);
+                    } else {
+                        console.error("Failed to fetch sensor data:", data.error || "Unknown error");
+                    }
+                })
+                .catch(error => console.error("Error fetching sensor data:", error));
+        }
+
+        // Update data every 5 seconds
+        setInterval(updateSensorData, 5000);
     </script>
   </body>
 </html>
